@@ -1,3 +1,5 @@
+![alt text](assets/imgs/brand.png)
+
 # Decentralized Gym Access
 
 This project is a decentralized application for managing gym access and rewards using blockchain technology. Users can purchase NFTs for access, gyms stake tokens as collateral, and various rewards systems are implemented.
