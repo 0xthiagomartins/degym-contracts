@@ -22,14 +22,6 @@ This project is a decentralized application for managing gym access and rewards 
 - **DynamicPricing**: Calculates dynamic pricing for NFT access.
 - **WellnessProgram**: Manages health and wellness programs for users.
 
-## UML Diagrams
-
-The UML diagrams are divided into different files for better understanding:
-
-- [Main UML Diagram](./diagrams/main_uml.md)
-- [Dynamic Pricing UML Diagram](./diagrams/dynamic_pricing_uml.md)
-- [Wellness Program UML Diagram](./diagrams/wellness_program_uml.md)
-
 ## Setup
 
 1. Clone the repository

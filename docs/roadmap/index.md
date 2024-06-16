@@ -1,4 +1,4 @@
-### Roadmap for Decentralized Gym Access DApp
+### Roadmap
 
 Here is a detailed roadmap to guide the project from inception to launch and beyond. This roadmap is divided into quarters, with key milestones and activities for each period.
 
