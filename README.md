@@ -4,6 +4,11 @@
 
 This project is a decentralized application for managing gym access and rewards using blockchain technology. Users can purchase NFTs for access, gyms stake tokens as collateral, and various rewards systems are implemented.
 
+
+**DOCS URL**
+
+https://degym-1.gitbook.io/docs/
+
 ## Features
 
 - NFT-based gym access
