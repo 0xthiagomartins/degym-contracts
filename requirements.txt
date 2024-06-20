@@ -1,1 +1,5 @@
 eth-brownie
+ipykernel
+matplotlib
+pandas
+ace
