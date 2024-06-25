@@ -1,5 +1,6 @@
 eth-ape
 ape-solidity
+web3
 pytest
 ipykernel
 matplotlib

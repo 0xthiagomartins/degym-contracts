@@ -1,10 +1,21 @@
 dependencies:
-  - OpenZeppelin/openzeppelin-contracts@4.3.2
+  - name: openzeppelin
+    github: OpenZeppelin/openzeppelin-contracts
+    version: 4.3.2
+
 compiler:
   solc:
-    version: "0.8.4"
-    optimizer:
-      enabled: true
-      runs: 200
+    version: "0.8.0"
+    settings:
+      optimizer:
+        enabled: true
+        runs: 200
+
 networks:
-  default: development
+  ethereum:
+    taraxa-testnet:
+      provider:
+        name: web3
+        settings:
+          uri: https://rpc.testnet.taraxa.io
+          chain_id: 842
