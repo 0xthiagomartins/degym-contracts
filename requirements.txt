@@ -1,5 +1,4 @@
-eth-brownie
+eth-brownie==1.18.1
 ipykernel
 matplotlib
 pandas
-ace
