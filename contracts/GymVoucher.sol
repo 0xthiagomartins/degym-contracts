@@ -5,11 +5,6 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-interface IStakingContract {
-    function getStake(address user) external view returns (uint256);
-    function voteUpdateBasePrice(uint256 newBasePrice) external;
-}
-
 contract GymVoucher is ERC721URIStorage, Ownable {
     struct Voucher {
         uint256 tier;
@@ -19,34 +14,22 @@ contract GymVoucher is ERC721URIStorage, Ownable {
         string timezone;
     }
 
-    IERC20 public usdtToken;
-    IStakingContract public stakingContract;
+    IERC20 public token;
     uint256 public nextVoucherId;
-    uint256 public basePrice = 15 * 10 ** 18; // $15 in USDT
-
-    mapping(uint256 => Voucher) public vouchers;
+    uint256 public basePrice = 15 * 10**18; // Base price in USDT
+    mapping(uint256 => Voucher> public vouchers;
 
     event VoucherUpgraded(uint256 voucherId, uint256 newTier);
     event VoucherRenewed(uint256 voucherId, uint256 additionalDays);
     event VoucherDowngraded(uint256 voucherId, uint256 newTier);
 
-    constructor(
-        address usdtTokenAddress,
-        address stakingContractAddress
-    ) ERC721("Gym Voucher", "GV") {
-        usdtToken = IERC20(usdtTokenAddress);
-        stakingContract = IStakingContract(stakingContractAddress);
+    constructor(address tokenAddress) ERC721("Gym Voucher", "GV") {
+        token = IERC20(tokenAddress);
     }
 
-    function createVoucher(
-        address owner,
-        uint256 tier,
-        uint256 duration,
-        string memory timezone
-    ) public onlyOwner {
+    function createVoucher(address owner, uint256 tier, uint256 duration, string memory timezone) public onlyOwner {
         uint256 voucherId = nextVoucherId++;
         _mint(owner, voucherId);
-
         vouchers[voucherId] = Voucher({
             tier: tier,
             duration: duration,
@@ -54,27 +37,19 @@ contract GymVoucher is ERC721URIStorage, Ownable {
             lastReset: block.timestamp,
             timezone: timezone
         });
-
         _setTokenURI(voucherId, "");
     }
 
     function upgradeVoucher(uint256 voucherId, uint256 newTier) public payable {
-        require(
-            _isApprovedOrOwner(_msgSender(), voucherId),
-            "Caller is not owner nor approved"
-        );
+        require(_isApprovedOrOwner(_msgSender(), voucherId), "Caller is not owner nor approved");
         require(newTier > vouchers[voucherId].tier, "New tier must be higher");
 
         Voucher storage voucher = vouchers[voucherId];
         uint256 currentTier = voucher.tier;
         uint256 remainingDCP = voucher.remainingDCP;
 
-        uint256 price = (((remainingDCP * (2 ** (newTier - currentTier))) /
-            (2 ** currentTier)) * basePrice) / (2 ** 30);
-        require(
-            usdtToken.transferFrom(_msgSender(), address(this), price),
-            "Payment failed"
-        );
+        uint256 price = (remainingDCP * (2 ** (newTier - currentTier))) / (2 ** currentTier) * basePrice / (2 ** 30);
+        require(msg.value >= price, "Insufficient funds for upgrade");
 
         voucher.tier = newTier;
         voucher.remainingDCP = remainingDCP * (2 ** (newTier - currentTier));
@@ -82,22 +57,12 @@ contract GymVoucher is ERC721URIStorage, Ownable {
         emit VoucherUpgraded(voucherId, newTier);
     }
 
-    function renewVoucher(
-        uint256 voucherId,
-        uint256 additionalDays
-    ) public payable {
-        require(
-            _isApprovedOrOwner(_msgSender(), voucherId),
-            "Caller is not owner nor approved"
-        );
+    function renewVoucher(uint256 voucherId, uint256 additionalDays) public payable {
+        require(_isApprovedOrOwner(_msgSender(), voucherId), "Caller is not owner nor approved");
 
         Voucher storage voucher = vouchers[voucherId];
-        uint256 price = (voucher.remainingDCP * additionalDays * basePrice) /
-            (voucher.duration * (2 ** 30));
-        require(
-            usdtToken.transferFrom(_msgSender(), address(this), price),
-            "Payment failed"
-        );
+        uint256 price = (voucher.remainingDCP * additionalDays * basePrice) / (voucher.duration * (2 ** 30));
+        require(msg.value >= price, "Insufficient funds for renewal");
 
         voucher.duration += additionalDays;
 
@@ -105,10 +70,7 @@ contract GymVoucher is ERC721URIStorage, Ownable {
     }
 
     function downgradeVoucher(uint256 voucherId, uint256 newTier) public {
-        require(
-            _isApprovedOrOwner(_msgSender(), voucherId),
-            "Caller is not owner nor approved"
-        );
+        require(_isApprovedOrOwner(_msgSender(), voucherId), "Caller is not owner nor approved");
         require(newTier < vouchers[voucherId].tier, "New tier must be lower");
 
         Voucher storage voucher = vouchers[voucherId];
@@ -127,13 +89,7 @@ contract GymVoucher is ERC721URIStorage, Ownable {
         voucher.lastReset = block.timestamp;
     }
 
-    function getVoucherDetails(
-        uint256 voucherId
-    ) public view returns (Voucher memory) {
+    function getVoucherDetails(uint256 voucherId) public view returns (Voucher memory) {
         return vouchers[voucherId];
-    }
-
-    function updateBasePrice(uint256 newBasePrice) public {
-        stakingContract.voteUpdateBasePrice(newBasePrice);
     }
 }

@@ -1,4 +1,6 @@
-eth-brownie==1.18.1
+eth-ape
+ape-solidity
+pytest
 ipykernel
 matplotlib
 pandas

@@ -11,7 +11,7 @@ from brownie import (
 def test_deploy():
     deployer = accounts[0]
 
-    token = DeGymToken.deploy(1000000, {"from": deployer})
+    token = DeGymToken.deploy(1_000_000, {"from": deployer})
     assert token.name() == "DeGym Token"
     assert token.symbol() == "DGYM"
 

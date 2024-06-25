@@ -1,41 +1,29 @@
-import pytest
-from brownie import GymProviderCertificate, DeGymToken, accounts
+from ape import accounts, project
 
 
-@pytest.fixture
-def token():
-    return DeGymToken.deploy(1000000, {"from": accounts[0]})
+def test_issue_certificate(provider_certificate_contract, owner, user1):
+    stake_contract_address = provider_certificate_contract.stakingContract()
+    stake_contract = project.Stake.at(stake_contract_address)
+    stake_contract.stake(1000, True, sender=user1).wait()
+    initial_balance = provider_certificate_contract.balanceOf(user1)
+    tx = provider_certificate_contract.issueCertificate(user1, 2, sender=owner)
+    tx.wait()
+    assert provider_certificate_contract.balanceOf(user1) == initial_balance + 1
+    assert provider_certificate_contract.certificates(0)["tier"] == 2
 
 
-@pytest.fixture
-def staking_contract(token):
-    return Stake.deploy(token.address, {"from": accounts[0]})
+def test_validate_certificate(provider_certificate_contract, owner, user1):
+    stake_contract_address = provider_certificate_contract.stakingContract()
+    stake_contract = project.Stake.at(stake_contract_address)
+    stake_contract.stake(1000, True, sender=user1).wait()
+    provider_certificate_contract.issueCertificate(user1, 2, sender=owner).wait()
+    assert provider_certificate_contract.validateCertificate(0) == True
 
 
-@pytest.fixture
-def certificate(staking_contract):
-    return GymProviderCertificate.deploy(
-        staking_contract.address, 1000, {"from": accounts[0]}
-    )
-
-
-def test_issue_certificate(certificate, staking_contract, token, accounts):
-    token.transfer(accounts[1], 2000, {"from": accounts[0]})
-    token.approve(staking_contract.address, 2000, {"from": accounts[1]})
-    staking_contract.stake(2000, True, {"from": accounts[1]})
-    certificate.issueCertificate(accounts[1], 3, {"from": accounts[0]})
-    assert certificate.balanceOf(accounts[1]) == 1
-
-
-def test_validate_certificate(certificate, staking_contract, token, accounts):
-    token.transfer(accounts[1], 2000, {"from": accounts[0]})
-    token.approve(staking_contract.address, 2000, {"from": accounts[1]})
-    staking_contract.stake(2000, True, {"from": accounts[1]})
-    certificate.issueCertificate(accounts[1], 3, {"from": accounts[0]})
-    assert certificate.validateCertificate(0) == True
-
-
-def test_revoke_certificate(certificate, accounts):
-    certificate.issueCertificate(accounts[1], 3, {"from": accounts[0]})
-    certificate.revokeCertificate(0, {"from": accounts[0]})
-    assert certificate.validateCertificate(0) == False
+def test_revoke_certificate(provider_certificate_contract, owner, user1):
+    stake_contract_address = provider_certificate_contract.stakingContract()
+    stake_contract = project.Stake.at(stake_contract_address)
+    stake_contract.stake(1000, True, sender=user1).wait()
+    provider_certificate_contract.issueCertificate(user1, 2, sender=owner).wait()
+    provider_certificate_contract.revokeCertificate(0, sender=owner).wait()
+    assert provider_certificate_contract.validateCertificate(0) == False
