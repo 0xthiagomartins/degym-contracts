@@ -29,13 +29,17 @@ def provider():
 
 
 @pytest.fixture
-def dGym_token(deployer):
-    return os.environ.get("DGYM_ADDRESS", deployer.deploy(project.DeGymToken, 1000000))
+def dGym_token(Contract, deployer):
+    return __get_contract(
+        Contract, "DGYM_ADDRESS", deployer, project.DeGymToken, 1000000
+    )
 
 
 @pytest.fixture
-def fiat_token(deployer):
-    return os.environ.get("USDT_ADDRESS", deployer.deploy(project.DeGymToken, 1000000))
+def fiat_token(Contract, deployer):
+    return __get_contract(
+        Contract, "USDT_ADDRESS", deployer, project.DeGymToken, 1000000
+    )
 
 
 @pytest.fixture
