@@ -22,24 +22,27 @@ This repository contains the smart contracts for the DeGym project. The project 
     ape compile
     ```
 
-2.1 Add Account (if not exists)
+2.1 Add Account (generate or import if not exists)
     ```bash
     ape accounts list
     ape accounts generate account_alias
     ```
 
-3. Run tests:
+2.2 Make sure your account has some testnet TARA for deploying contracts and running tests. You can use the Taraxa testnet faucet to get testnet TARA.
+
+
+1. Run tests:
     ```bash
     ape test --network taraxa:testnet
     ```
 
-4. Deploy contracts:
+2. Deploy contracts:
     ```bash
-    ape run deploy/00_deploy_token.py
-    ape run deploy/01_deploy_voucher.py
-    ape run deploy/02_deploy_stake.py
-    ape run deploy/03_deploy_gym_provider_certificate.py
-    ape run deploy/04_deploy_checkin.py
+    ape run --network taraxa:testnet deploy/00_deploy_token.py
+    ape run --network taraxa:testnet deploy/01_deploy_voucher.py
+    ape run --network taraxa:testnet deploy/02_deploy_stake.py
+    ape run --network taraxa:testnet deploy/03_deploy_gym_provider_certificate.py
+    ape run --network taraxa:testnet deploy/04_deploy_checkin.py
     ```
 
 ## Configuration

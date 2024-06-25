@@ -19,5 +19,5 @@ networks:
       chain_id: 841
     testnet:
       host: https://rpc.testnet.taraxa.io
-      explorer: https://explorer.testnet.taraxa.io/
+      explorer: https://testnet.explorer.taraxa.io/
       chain_id: 842
