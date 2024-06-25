@@ -1,39 +1,81 @@
 ![alt text](assets/imgs/brand.png)
 
-# Decentralized Gym Access
+# # DeGym Smart Contracts
 
-This project is a decentralized application for managing gym access and rewards using blockchain technology. Users can purchase NFTs for access, gyms stake tokens as collateral, and various rewards systems are implemented.
+This repository contains the smart contracts for the DeGym project, including the token contract, voucher NFT contract, gym provider certificate contract, check-in contract, and staking contract.
 
+## Prerequisites
 
-**DOCS URL**
+- [Brownie](https://eth-brownie.readthedocs.io/en/stable/install.html)
+- Python 3.6+
+- Node.js
 
-https://degym-1.gitbook.io/docs/
+## Installation
 
-## Features
+1. Clone the repository:
 
-- NFT-based gym access
-- Token staking for gyms
-- Check-in system with rewards
-- Incentive mechanisms for users and gyms
-- Blacklist system for gyms
-- Dynamic pricing for NFT access
-- Wellness programs for additional rewards
+```bash
+git clone https://github.com/your-repo/degym-contracts.git
+cd degym-contracts
+```
+
+2. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+## Configuration
+
+Update the brownie-config.yaml file with your settings.
+
+## Deployment
+
+1. Load your account:
+
+```bash
+brownie accounts new deployment_account
+```
+
+2. Deploy the contracts:
+
+```bash
+brownie run scripts/deploy.py
+```
+
+## Testing
+
+Run the tests:
+
+```bash
+brownie test
+```
+
+---
 
 ## Contracts
 
-- **GymAccessNFT**: Handles NFT minting for gym access.
-- **GymStaking**: Manages staking of tokens by gyms.
-- **GymCheckIn**: Handles user check-ins and rewards.
-- **DynamicPricing**: Calculates dynamic pricing for NFT access.
-- **WellnessProgram**: Manages health and wellness programs for users.
+### DeGymToken
 
-## Setup
+ERC20 token contract for $DGYM.
 
-1. Clone the repository
-2. Install dependencies: `pip install eth-brownie`
-3. Compile contracts: `brownie compile`
-4. Deploy contracts: `brownie run scripts/deploy.py`
-5. Run tests: `brownie test`
+### GymVoucher
+
+NFT contract for gym membership vouchers.
+
+### GymProviderCertificate
+
+Contract for issuing and validating gym provider certificates.
+
+### Checkin
+
+Contract for validating and recording gym check-ins.
+
+### Stake
+
+Contract for staking $DGYM tokens and receiving rewards.
+
+---
 
 ## License
 
