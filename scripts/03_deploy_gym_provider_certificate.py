@@ -1,8 +1,9 @@
 from ape import project, accounts
+import os
 
 
 def main():
-    owner = accounts.load("deployer")
+    owner = accounts.load("first_account")
     stake_contract = project.Stake.deploy(1_000_000 * 10**18, sender=owner)
     min_stake = 500 * 10**18  # example minimum stake
     provider_certificate = owner.deploy(

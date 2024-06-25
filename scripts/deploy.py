@@ -3,7 +3,7 @@ from ape import accounts, project
 
 def main():
     # Load the deployer account
-    deployer = accounts.load("deployer")
+    deployer = accounts.load("first_account")
 
     # Deploy the DeGymToken contract
     token = deployer.deploy(project.DeGymToken, initial_supply=1000000)

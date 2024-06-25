@@ -2,7 +2,7 @@ from ape import project, accounts
 
 
 def main():
-    owner = accounts.load("deployer")
+    owner = accounts.load("first_account")
     provider_certificate = project.GymProviderCertificate.deploy(
         1_000_000 * 10**18, sender=owner
     )
