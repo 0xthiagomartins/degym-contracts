@@ -14,8 +14,8 @@ def deploy_degym_token(deployer):
 
 
 def deploy_voucher(deployer, fiat_address):
-    voucher = deployer.deploy(project.GymVoucher, fiat_address)
-    print(f"Deployed GymVoucher at {voucher.address}")
+    voucher = deployer.deploy(project.Voucher, fiat_address)
+    print(f"Deployed Voucher at {voucher.address}")
     return voucher
 
 
@@ -28,9 +28,9 @@ def deploy_stake(deployer, token, fiat_address):
 def deploy_provider_certificate(deployer, stake_contract):
     min_stake = 500 * 10**18  # example minimum stake amount (in $DGYM)
     provider_certificate = deployer.deploy(
-        project.GymProviderCertificate, stake_contract.address, min_stake
+        project.ProviderCertificate, stake_contract.address, min_stake
     )
-    print(f"Deployed GymProviderCertificate at {provider_certificate.address}")
+    print(f"Deployed ProviderCertificate at {provider_certificate.address}")
     return provider_certificate
 
 

@@ -4,26 +4,26 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-interface IStakingContract {
+interface IstakeContract {
     function getStake(address user) external view returns (uint256);
 }
 
-contract GymProviderCertificate is ERC721URIStorage, Ownable {
+contract ProviderCertificate is ERC721URIStorage, Ownable {
     struct Certificate {
         uint256 tier;
         bool isValid;
     }
 
     mapping(uint256 => Certificate) public certificates;
-    IStakingContract public stakingContract;
+    IstakeContract public stakeContractAddress;
     uint256 public minimumStake;
     uint256 public nextTokenId;
 
     constructor(
-        address stakingContractAddress,
+        address stakeContractAddress,
         uint256 minStake
-    ) ERC721("Gym Provider Certificate", "GYMPC") {
-        stakingContract = IStakingContract(stakingContractAddress);
+    ) ERC721("Provider Certificate", "PC") {
+        stakingContract = IStakeContract(stakeContractAddress);
         minimumStake = minStake;
     }
 
@@ -34,7 +34,7 @@ contract GymProviderCertificate is ERC721URIStorage, Ownable {
         );
         uint256 tokenId = nextTokenId;
         _mint(to, tokenId);
-        _setTokenURI(tokenId, "ipfs://Qm..."); // Example IPFS URI
+        _setTokenURI(tokenId, "ipfs://Qm..."); // TODO: Example IPFS URI
         certificates[tokenId] = Certificate(tier, true);
         nextTokenId++;
     }

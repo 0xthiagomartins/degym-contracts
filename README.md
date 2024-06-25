@@ -38,11 +38,7 @@ This repository contains the smart contracts for the DeGym project. The project 
 
 2. Deploy contracts:
     ```bash
-    ape run --network taraxa:testnet deploy/00_deploy_token.py
-    ape run --network taraxa:testnet deploy/01_deploy_voucher.py
-    ape run --network taraxa:testnet deploy/02_deploy_stake.py
-    ape run --network taraxa:testnet deploy/03_deploy_gym_provider_certificate.py
-    ape run --network taraxa:testnet deploy/04_deploy_checkin.py
+    ape run --network taraxa:testnet scripts/deploy.py
     ```
 
 ## Configuration

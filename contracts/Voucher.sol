@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract GymVoucher is ERC721URIStorage, Ownable {
+contract Voucher is ERC721URIStorage, Ownable {
     struct Voucher {
         uint256 tier;
         uint256 duration; // in days
@@ -24,7 +24,7 @@ contract GymVoucher is ERC721URIStorage, Ownable {
     event VoucherRenewed(uint256 voucherId, uint256 additionalDays);
     event VoucherDowngraded(uint256 voucherId, uint256 newTier);
 
-    constructor(address fiatTokenAddress) ERC721("Gym Voucher", "GV") {
+    constructor(address fiatTokenAddress) ERC721("Voucher", "V") {
         fiatToken = IERC20(fiatTokenAddress);
     }
 

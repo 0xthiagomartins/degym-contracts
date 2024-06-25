@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Stake is Ownable {
-    IERC20 public dGymToken;
+    IERC20 public daoToken;
     IERC20 public fiatToken;
 
     struct StakeInfo {
@@ -24,14 +24,14 @@ contract Stake is Ownable {
         bool isCompound
     );
 
-    constructor(address _dGymToken, address _fiatToken) {
-        dGymToken = IERC20(_dGymToken);
+    constructor(address _daoToken, address _fiatToken) {
+        daoToken = IERC20(_daoToken);
         fiatToken = IERC20(_fiatToken);
     }
 
     function stake(uint256 amount, bool isCompound) public {
         require(amount > 0, "Amount must be greater than 0");
-        dGymToken.transferFrom(msg.sender, address(this), amount);
+        daoToken.transferFrom(msg.sender, address(this), amount);
 
         stakes[msg.sender] = StakeInfo(amount, isCompound);
         totalStaked += amount;
@@ -44,7 +44,7 @@ contract Stake is Ownable {
         stakes[msg.sender].amount -= amount;
         totalStaked -= amount;
 
-        dGymToken.transfer(msg.sender, amount);
+        daoToken.transfer(msg.sender, amount);
         emit Unstaked(msg.sender, amount);
     }
 
@@ -54,7 +54,7 @@ contract Stake is Ownable {
         bool isCompound
     ) external onlyOwner {
         if (isCompound) {
-            dGymToken.transfer(recipient, amount);
+            daoToken.transfer(recipient, amount);
         } else {
             fiatToken.transfer(recipient, amount);
         }

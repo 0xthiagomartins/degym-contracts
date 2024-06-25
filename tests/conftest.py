@@ -30,22 +30,18 @@ def provider():
 
 @pytest.fixture
 def dGym_token(Contract, deployer):
-    return __get_contract(
-        Contract, "DGYM_ADDRESS", deployer, project.DeGymToken, 1000000
-    )
+    return __get_contract(Contract, "DGYM_ADDRESS", deployer, project.Token, 1000000)
 
 
 @pytest.fixture
 def fiat_token(Contract, deployer):
-    return __get_contract(
-        Contract, "USDT_ADDRESS", deployer, project.DeGymToken, 1000000
-    )
+    return __get_contract(Contract, "USDT_ADDRESS", deployer, project.Token, 1000000)
 
 
 @pytest.fixture
 def voucher_contract(Contract, deployer, fiat_token):
     return __get_contract(
-        Contract, "VOUCHER_ADDRESS", deployer, project.GymVoucher, fiat_token
+        Contract, "VOUCHER_ADDRESS", deployer, project.Voucher, fiat_token
     )
 
 
@@ -67,7 +63,7 @@ def gym_provider_certificate(Contract, deployer, stake_contract):
         Contract,
         "PROVIDER_CERTIFICATE_ADDRESS",
         deployer,
-        project.GymProviderCertificate,
+        project.ProviderCertificate,
         stake_contract.address,
         1000,
     )

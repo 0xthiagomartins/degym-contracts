@@ -3,19 +3,19 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-interface IGymProviderCertificate {
+interface IProviderCertificate {
     function checkCertificate(
         uint256 certificateId
     ) external view returns (uint256, uint256, bool);
 }
 
-interface IGymVoucher {
-    function checkin(uint256 tokenId, uint256 gymTier) external;
+interface IVoucher {
+    function checkin(uint256 tokenId, uint256 tier) external;
 }
 
 contract Checkin is Ownable {
-    IGymProviderCertificate public providerCertificate;
-    IGymVoucher public gymVoucher;
+    IProviderCertificate public providerCertificate;
+    IVoucher public voucher;
 
     event CheckinSuccessful(
         uint256 voucherId,
@@ -23,19 +23,18 @@ contract Checkin is Ownable {
         uint256 tier
     );
 
-    constructor(address providerCertificateAddress, address gymVoucherAddress) {
-        providerCertificate = IGymProviderCertificate(
-            providerCertificateAddress
-        );
-        gymVoucher = IGymVoucher(gymVoucherAddress);
+    constructor(address providerCertificateAddress, address voucherAddress) {
+        providerCertificate = IProviderCertificate(providerCertificateAddress);
+        voucher = IVoucher(voucherAddress);
     }
 
     function checkin(uint256 voucherId, uint256 certificateId) public {
-        (uint256 gymTier, , bool isActive) = providerCertificate
-            .checkCertificate(certificateId);
-        require(isActive, "Gym certificate is not active");
+        (uint256 tier, , bool isActive) = providerCertificate.checkCertificate(
+            certificateId
+        );
+        require(isActive, "Provider certificate is not active");
 
-        gymVoucher.checkin(voucherId, gymTier);
-        emit CheckinSuccessful(voucherId, certificateId, gymTier);
+        voucher.checkin(voucherId, tier);
+        emit CheckinSuccessful(voucherId, certificateId, tier);
     }
 }
