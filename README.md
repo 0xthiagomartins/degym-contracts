@@ -39,4 +39,3 @@ This repository contains the smart contracts for the DeGym project. The project 
 ## Configuration
 
 Update the `ape-config.yaml` file with your specific configuration needs.
-Would you like to proceed with any further instructions or modifications?
