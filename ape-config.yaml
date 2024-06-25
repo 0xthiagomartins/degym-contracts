@@ -12,10 +12,12 @@ compiler:
         runs: 200
 
 networks:
-  ethereum:
-    taraxa-testnet:
-      provider:
-        name: web3
-        settings:
-          uri: https://rpc.testnet.taraxa.io
-          chain_id: 842
+  taraxa:
+    mainnet:
+      host: https://rpc.mainnet.taraxa.io
+      explorer: https://mainnet.explorer.taraxa.io/
+      chain_id: 841
+    testnet:
+      host: https://rpc.testnet.taraxa.io
+      explorer: https://explorer.testnet.taraxa.io/
+      chain_id: 842

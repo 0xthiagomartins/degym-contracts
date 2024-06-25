@@ -22,9 +22,15 @@ This repository contains the smart contracts for the DeGym project. The project 
     ape compile
     ```
 
+2.1 Add Account (if not exists)
+    ```bash
+    ape accounts list
+    ape accounts generate account_alias
+    ```
+
 3. Run tests:
     ```bash
-    ape test
+    ape test --network taraxa:testnet
     ```
 
 4. Deploy contracts:

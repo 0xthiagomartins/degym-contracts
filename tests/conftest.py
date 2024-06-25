@@ -26,7 +26,9 @@ def usdt_token(owner):
 
 @pytest.fixture
 def voucher_contract(owner, dGym_token):
-    return owner.deploy(project.GymVoucher, dGym_token.address)
+    return owner.deploy(
+        project.GymVoucher, "0x063F255689b00A877F6be55109b3ECA24e266809"  # HERB
+    )
 
 
 @pytest.fixture
