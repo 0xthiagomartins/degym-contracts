@@ -2,6 +2,14 @@ import pytest, os
 from ape import project, accounts
 
 
+def __get_contract(Contract, key, deployer, contract, *args, **kwargs):
+    address = os.environ.get(key)
+    contract = (
+        Contract[address] if address else deployer.deploy(contract, *args, **kwargs)
+    )
+    return contract
+
+
 @pytest.fixture
 def deployer():
     address = os.environ.get("DEPLOYER_ADDRESS")
@@ -31,33 +39,43 @@ def fiat_token(deployer):
 
 
 @pytest.fixture
-def voucher_contract(deployer, fiat_token):
-    return os.environ.get(
-        "VOUCHER_ADDRESS", deployer.deploy(project.GymVoucher, fiat_token)
+def voucher_contract(Contract, deployer, fiat_token):
+    return __get_contract(
+        Contract, "VOUCHER_ADDRESS", deployer, project.GymVoucher, fiat_token
     )
 
 
 @pytest.fixture
-def stake_contract(deployer, dGym_token, fiat_token):
-    return os.environ.get(
+def stake_contract(Contract, deployer, dGym_token, fiat_token):
+    return __get_contract(
+        Contract,
         "STAKE_ADDRESS",
-        deployer.deploy(project.Stake, dGym_token.address, fiat_token.address),
+        deployer,
+        project.Stake,
+        dGym_token.address,
+        fiat_token.address,
     )
 
 
 @pytest.fixture
-def gym_provider_certificate(deployer, stake_contract):
-    return os.environ.get(
+def gym_provider_certificate(Contract, deployer, stake_contract):
+    return __get_contract(
+        Contract,
         "PROVIDER_CERTIFICATE_ADDRESS",
-        deployer.deploy(project.GymProviderCertificate, stake_contract.address, 1000),
+        deployer,
+        project.GymProviderCertificate,
+        stake_contract.address,
+        1000,
     )
 
 
 @pytest.fixture
-def checkin_contract(deployer, gym_provider_certificate, voucher_contract):
-    return os.environ.get(
-        "",
-        deployer.deploy(
-            project.Checkin, gym_provider_certificate.address, voucher_contract.address
-        ),
+def checkin_contract(Contract, deployer, gym_provider_certificate, voucher_contract):
+    return __get_contract(
+        Contract,
+        "CHECKIN_ADDRESS",
+        deployer,
+        project.Checkin,
+        gym_provider_certificate.address,
+        voucher_contract.address,
     )
