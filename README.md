@@ -4,77 +4,48 @@
 
 This repository contains the smart contracts for the DeGym project, including the token contract, voucher NFT contract, gym provider certificate contract, check-in contract, and staking contract.
 
-## Prerequisites
+## Setup
 
-- [Brownie](https://eth-brownie.readthedocs.io/en/stable/install.html)
-- Python 3.6+
-- Node.js
+1. Install Ape and dependencies:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-## Installation
+2. Compile the contracts:
+    ```bash
+    ape compile
+    ```
 
-1. Clone the repository:
+3. Run tests:
+    ```bash
+    ape test
+    ```
 
-```bash
-git clone https://github.com/your-repo/degym-contracts.git
-cd degym-contracts
-```
-
-2. Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-## Configuration
-
-Update the brownie-config.yaml file with your settings.
-
-## Deployment
-
-1. Load your account:
-
-```bash
-brownie accounts new deployment_account
-```
-
-2. Deploy the contracts:
-
-```bash
-brownie run scripts/deploy.py
-```
-
-## Testing
-
-Run the tests:
-
-```bash
-brownie test
-```
-
----
+4. Deploy contracts:
+    ```bash
+    ape run deploy/deploy_degym_token.py
+    ape run deploy/deploy_gym_voucher.py
+    ape run deploy/deploy_gym_provider_certificate.py
+    ape run deploy/deploy_checkin.py
+    ape run deploy/deploy_stake.py
+    ```
 
 ## Contracts
 
-### DeGymToken
+### DeGymToken.sol
+ERC20 token for the DeGym project.
 
-ERC20 token contract for $DGYM.
+### GymVoucher.sol
+NFT contract for gym membership vouchers with functionality for upgrades, renewals, and downgrades.
 
-### GymVoucher
+### GymProviderCertificate.sol
+NFT contract for issuing certificates to gym providers based on their staked DGYM tokens.
 
-NFT contract for gym membership vouchers.
-
-### GymProviderCertificate
-
-Contract for issuing and validating gym provider certificates.
-
-### Checkin
-
+### Checkin.sol
 Contract for validating and recording gym check-ins.
 
-### Stake
-
-Contract for staking $DGYM tokens and receiving rewards.
-
+### Stake.sol
+Contract for staking DGYM tokens and receiving rewards in DGYM or USDT.
 ---
 
 ## License
