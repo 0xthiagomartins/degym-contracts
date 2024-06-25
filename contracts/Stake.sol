@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Stake is Ownable {
     IERC20 public dGymToken;
-    IERC20 public usdtToken;
+    IERC20 public fiatToken;
 
     struct StakeInfo {
         uint256 amount;
@@ -24,9 +24,9 @@ contract Stake is Ownable {
         bool isCompound
     );
 
-    constructor(address _dGymToken, address _usdtToken) {
+    constructor(address _dGymToken, address _fiatToken) {
         dGymToken = IERC20(_dGymToken);
-        usdtToken = IERC20(_usdtToken);
+        fiatToken = IERC20(_fiatToken);
     }
 
     function stake(uint256 amount, bool isCompound) public {
@@ -56,7 +56,7 @@ contract Stake is Ownable {
         if (isCompound) {
             dGymToken.transfer(recipient, amount);
         } else {
-            usdtToken.transfer(recipient, amount);
+            fiatToken.transfer(recipient, amount);
         }
 
         emit RewardDistributed(recipient, amount, isCompound);

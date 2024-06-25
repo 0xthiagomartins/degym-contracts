@@ -14,7 +14,7 @@ contract GymVoucher is ERC721URIStorage, Ownable {
         string timezone;
     }
 
-    IERC20 public token;
+    IERC20 public fiatToken;
     uint256 public nextVoucherId;
     uint256 public basePrice = 15 * 10 ** 18;
 
@@ -24,8 +24,8 @@ contract GymVoucher is ERC721URIStorage, Ownable {
     event VoucherRenewed(uint256 voucherId, uint256 additionalDays);
     event VoucherDowngraded(uint256 voucherId, uint256 newTier);
 
-    constructor(address tokenAddress) ERC721("Gym Voucher", "GV") {
-        token = IERC20(tokenAddress);
+    constructor(address fiatTokenAddress) ERC721("Gym Voucher", "GV") {
+        fiatToken = IERC20(fiatTokenAddress);
     }
 
     function createVoucher(
