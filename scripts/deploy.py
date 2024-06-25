@@ -1,39 +1,36 @@
 from brownie import (
-    accounts,
     DeGymToken,
     GymVoucher,
     GymProviderCertificate,
     Checkin,
     Stake,
+    accounts,
 )
 
 
 def main():
-    # Load account
-    account = accounts.load("deployment_account")
+    admin = accounts[0]
 
-    # Deploy DeGymToken
-    token = DeGymToken.deploy(1000000 * 10**18, {"from": account})
-    print(f"DeGymToken deployed at {token.address}")
+    # Deploy the token
+    token = DeGymToken.deploy(1000000, {"from": admin})
+    print("Token deployed at:", token.address)
 
-    # Deploy GymVoucher
-    gym_voucher = GymVoucher.deploy(token.address, {"from": account})
-    print(f"GymVoucher deployed at {gym_voucher.address}")
+    # Deploy the voucher contract
+    voucher = GymVoucher.deploy(token.address, {"from": admin})
+    print("Voucher deployed at:", voucher.address)
 
-    # Deploy GymProviderCertificate
-    gym_provider_certificate = GymProviderCertificate.deploy(
-        token.address, 1000 * 10**18, {"from": account}
+    # Deploy the staking contract
+    stake = Stake.deploy(token.address, token.address, {"from": admin})
+    print("Stake deployed at:", stake.address)
+
+    # Deploy the gym provider certificate contract
+    provider_certificate = GymProviderCertificate.deploy(
+        stake.address, 1000, {"from": admin}
     )
-    print(f"GymProviderCertificate deployed at {gym_provider_certificate.address}")
+    print("Provider Certificate deployed at:", provider_certificate.address)
 
-    # Deploy Checkin
+    # Deploy the checkin contract
     checkin = Checkin.deploy(
-        gym_provider_certificate.address, gym_voucher.address, {"from": account}
+        provider_certificate.address, voucher.address, {"from": admin}
     )
-    print(f"Checkin deployed at {checkin.address}")
-
-    # Deploy Stake
-    stake = Stake.deploy(token.address, token.address, {"from": account})
-    print(f"Stake deployed at {stake.address}")
-
-    return token, gym_voucher, gym_provider_certificate, checkin, stake
+    print("Checkin deployed at:", checkin.address)

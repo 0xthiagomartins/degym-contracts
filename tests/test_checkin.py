@@ -1,34 +1,33 @@
-from brownie import Checkin, GymVoucher, GymProviderCertificate, DeGymToken, accounts
+import pytest
+from brownie import Checkin, GymProviderCertificate, GymVoucher, DeGymToken, accounts
 
 
-def test_checkin():
-    account = accounts[0]
-    dGymToken = DeGymToken.deploy(1000000 * 10**18, {"from": account})
-    gym_provider_certificate = GymProviderCertificate.deploy(
-        dGymToken.address, 1000 * 10**18, {"from": account}
+@pytest.fixture
+def token():
+    return DeGymToken.deploy(1000000, {"from": accounts[0]})
+
+
+@pytest.fixture
+def provider_certificate(token):
+    return GymProviderCertificate.deploy(token.address, 1000, {"from": accounts[0]})
+
+
+@pytest.fixture
+def voucher(token):
+    return GymVoucher.deploy(token.address, {"from": accounts[0]})
+
+
+@pytest.fixture
+def checkin(provider_certificate, voucher):
+    return Checkin.deploy(
+        provider_certificate.address, voucher.address, {"from": accounts[0]}
     )
-    gym_voucher = GymVoucher.deploy(dGymToken.address, {"from": account})
-    checkin_contract = Checkin.deploy(
-        gym_provider_certificate.address, gym_voucher.address, {"from": account}
-    )
 
-    # Stake tokens and issue a certificate to the gym provider
-    dGymToken.approve(
-        gym_provider_certificate.address, 1000 * 10**18, {"from": account}
-    )
-    dGymToken.transfer(
-        gym_provider_certificate.address, 1000 * 10**18, {"from": account}
-    )
-    gym_provider_certificate.issueCertificate(account, 1, {"from": account})
 
-    # Create a voucher
-    gym_voucher.createVoucher(account, 1, 30, "UTC", {"from": account})
-
-    # Perform a check-in
-    voucher_id = gym_voucher.tokenOfOwnerByIndex(account, 0)
-    certificate_id = gym_provider_certificate.tokenOfOwnerByIndex(account, 0)
-    checkin_contract.checkin(voucher_id, certificate_id, {"from": account})
-
-    # Validate the voucher's remaining DCP
-    details = gym_voucher.getVoucherDetails(voucher_id)
-    assert details[2] < 2**1  # remainingDCP should be less than initial
+def test_successful_checkin(checkin, provider_certificate, voucher, token, accounts):
+    token.transfer(accounts[1], 2000, {"from": accounts[0]})
+    token.approve(voucher.address, 2000, {"from": accounts[1]})
+    voucher.createVoucher(accounts[1], 3, 30, "UTC", {"from": accounts[0]})
+    provider_certificate.issueCertificate(accounts[2], 3, {"from": accounts[0]})
+    checkin.checkin(0, 0, {"from": accounts[1]})
+    assert voucher.getVoucherDetails(0)["remainingDCP"] == 7

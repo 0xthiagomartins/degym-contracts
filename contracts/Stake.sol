@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract Stake is Ownable {
     IERC20 public dGymToken;
     IERC20 public usdtToken;
+    GymVoucher public gymVoucherContract;
 
     struct StakeInfo {
         uint256 amount;
@@ -23,10 +24,16 @@ contract Stake is Ownable {
         uint256 amount,
         bool isCompound
     );
+    event BasePriceUpdated(uint256 newBasePrice);
 
-    constructor(address _dGymToken, address _usdtToken) {
+    constructor(
+        address _dGymToken,
+        address _usdtToken,
+        address _gymVoucherContract
+    ) {
         dGymToken = IERC20(_dGymToken);
         usdtToken = IERC20(_usdtToken);
+        gymVoucherContract = GymVoucher(_gymVoucherContract);
     }
 
     function stake(uint256 amount, bool isCompound) public {
@@ -60,5 +67,11 @@ contract Stake is Ownable {
         }
 
         emit RewardDistributed(recipient, amount, isCompound);
+    }
+
+    function voteUpdateBasePrice(uint256 newBasePrice) external {
+        require(stakes[msg.sender].amount > 0, "No stake to vote");
+        gymVoucherContract.updateBasePrice(newBasePrice);
+        emit BasePriceUpdated(newBasePrice);
     }
 }

@@ -1,31 +1,41 @@
+import pytest
 from brownie import GymProviderCertificate, DeGymToken, accounts
 
 
-def test_gym_provider_certificate():
-    account = accounts[0]
-    dGymToken = DeGymToken.deploy(1000000 * 10**18, {"from": account})
-    staking_contract = dGymToken  # Assuming staking contract for simplicity
-    gym_provider_certificate = GymProviderCertificate.deploy(
-        staking_contract.address, 1000 * 10**18, {"from": account}
+@pytest.fixture
+def token():
+    return DeGymToken.deploy(1000000, {"from": accounts[0]})
+
+
+@pytest.fixture
+def staking_contract(token):
+    return Stake.deploy(token.address, {"from": accounts[0]})
+
+
+@pytest.fixture
+def certificate(staking_contract):
+    return GymProviderCertificate.deploy(
+        staking_contract.address, 1000, {"from": accounts[0]}
     )
 
-    # Stake tokens to be eligible for certificate
-    dGymToken.approve(
-        gym_provider_certificate.address, 1000 * 10**18, {"from": account}
-    )
-    staking_contract.transfer(
-        gym_provider_certificate.address, 1000 * 10**18, {"from": account}
-    )
 
-    # Issue a certificate
-    gym_provider_certificate.issueCertificate(account, 1, {"from": account})
-    assert gym_provider_certificate.balanceOf(account) == 1
+def test_issue_certificate(certificate, staking_contract, token, accounts):
+    token.transfer(accounts[1], 2000, {"from": accounts[0]})
+    token.approve(staking_contract.address, 2000, {"from": accounts[1]})
+    staking_contract.stake(2000, True, {"from": accounts[1]})
+    certificate.issueCertificate(accounts[1], 3, {"from": accounts[0]})
+    assert certificate.balanceOf(accounts[1]) == 1
 
-    certificate_id = gym_provider_certificate.tokenOfOwnerByIndex(account, 0)
-    is_valid = gym_provider_certificate.validateCertificate(certificate_id)
-    assert is_valid
 
-    # Revoke the certificate
-    gym_provider_certificate.revokeCertificate(certificate_id, {"from": account})
-    is_valid = gym_provider_certificate.validateCertificate(certificate_id)
-    assert not is_valid
+def test_validate_certificate(certificate, staking_contract, token, accounts):
+    token.transfer(accounts[1], 2000, {"from": accounts[0]})
+    token.approve(staking_contract.address, 2000, {"from": accounts[1]})
+    staking_contract.stake(2000, True, {"from": accounts[1]})
+    certificate.issueCertificate(accounts[1], 3, {"from": accounts[0]})
+    assert certificate.validateCertificate(0) == True
+
+
+def test_revoke_certificate(certificate, accounts):
+    certificate.issueCertificate(accounts[1], 3, {"from": accounts[0]})
+    certificate.revokeCertificate(0, {"from": accounts[0]})
+    assert certificate.validateCertificate(0) == False

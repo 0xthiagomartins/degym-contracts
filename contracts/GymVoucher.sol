@@ -5,6 +5,11 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+interface IStakingContract {
+    function getStake(address user) external view returns (uint256);
+    function voteUpdateBasePrice(uint256 newBasePrice) external;
+}
+
 contract GymVoucher is ERC721URIStorage, Ownable {
     struct Voucher {
         uint256 tier;
@@ -14,9 +19,10 @@ contract GymVoucher is ERC721URIStorage, Ownable {
         string timezone;
     }
 
-    IERC20 public token;
+    IERC20 public usdtToken;
+    IStakingContract public stakingContract;
     uint256 public nextVoucherId;
-    uint256 public basePrice = 10 ether;
+    uint256 public basePrice = 15 * 10 ** 18; // $15 in USDT
 
     mapping(uint256 => Voucher) public vouchers;
 
@@ -24,8 +30,12 @@ contract GymVoucher is ERC721URIStorage, Ownable {
     event VoucherRenewed(uint256 voucherId, uint256 additionalDays);
     event VoucherDowngraded(uint256 voucherId, uint256 newTier);
 
-    constructor(address tokenAddress) ERC721("Gym Voucher", "GV") {
-        token = IERC20(tokenAddress);
+    constructor(
+        address usdtTokenAddress,
+        address stakingContractAddress
+    ) ERC721("Gym Voucher", "GV") {
+        usdtToken = IERC20(usdtTokenAddress);
+        stakingContract = IStakingContract(stakingContractAddress);
     }
 
     function createVoucher(
@@ -61,7 +71,10 @@ contract GymVoucher is ERC721URIStorage, Ownable {
 
         uint256 price = (((remainingDCP * (2 ** (newTier - currentTier))) /
             (2 ** currentTier)) * basePrice) / (2 ** 30);
-        require(msg.value >= price, "Insufficient funds for upgrade");
+        require(
+            usdtToken.transferFrom(_msgSender(), address(this), price),
+            "Payment failed"
+        );
 
         voucher.tier = newTier;
         voucher.remainingDCP = remainingDCP * (2 ** (newTier - currentTier));
@@ -81,7 +94,10 @@ contract GymVoucher is ERC721URIStorage, Ownable {
         Voucher storage voucher = vouchers[voucherId];
         uint256 price = (voucher.remainingDCP * additionalDays * basePrice) /
             (voucher.duration * (2 ** 30));
-        require(msg.value >= price, "Insufficient funds for renewal");
+        require(
+            usdtToken.transferFrom(_msgSender(), address(this), price),
+            "Payment failed"
+        );
 
         voucher.duration += additionalDays;
 
@@ -115,5 +131,9 @@ contract GymVoucher is ERC721URIStorage, Ownable {
         uint256 voucherId
     ) public view returns (Voucher memory) {
         return vouchers[voucherId];
+    }
+
+    function updateBasePrice(uint256 newBasePrice) public {
+        stakingContract.voteUpdateBasePrice(newBasePrice);
     }
 }

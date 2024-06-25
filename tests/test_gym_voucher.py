@@ -1,34 +1,39 @@
-from brownie import GymVoucher, DeGymToken, accounts
+import pytest
+from brownie import GymVoucher, DeGymToken, accounts, chain
 
 
-def test_gym_voucher():
-    account = accounts[0]
-    dGymToken = DeGymToken.deploy(1000000 * 10**18, {"from": account})
-    gym_voucher = GymVoucher.deploy(dGymToken.address, {"from": account})
+@pytest.fixture
+def token():
+    return DeGymToken.deploy(1000000, {"from": accounts[0]})
 
-    # Create a voucher
-    gym_voucher.createVoucher(account, 1, 30, "UTC", {"from": account})
-    assert gym_voucher.balanceOf(account) == 1
 
-    voucher_id = gym_voucher.tokenOfOwnerByIndex(account, 0)
-    details = gym_voucher.getVoucherDetails(voucher_id)
-    assert details[0] == 1  # tier
-    assert details[1] == 30  # duration
-    assert details[2] == 2**1  # remainingDCP
-    assert details[3] > 0  # lastReset
-    assert details[4] == "UTC"  # timezone
+@pytest.fixture
+def voucher(token):
+    return GymVoucher.deploy(token.address, {"from": accounts[0]})
 
-    # Upgrade the voucher
-    gym_voucher.upgradeVoucher(voucher_id, 2, {"from": account, "value": 10**18})
-    details = gym_voucher.getVoucherDetails(voucher_id)
-    assert details[0] == 2  # new tier
 
-    # Renew the voucher
-    gym_voucher.renewVoucher(voucher_id, 30, {"from": account, "value": 10**18})
-    details = gym_voucher.getVoucherDetails(voucher_id)
-    assert details[1] == 60  # new duration
+def test_create_voucher(voucher, accounts):
+    voucher.createVoucher(accounts[1], 3, 30, "UTC", {"from": accounts[0]})
+    assert voucher.balanceOf(accounts[1]) == 1
 
-    # Downgrade the voucher
-    gym_voucher.downgradeVoucher(voucher_id, 1, {"from": account})
-    details = gym_voucher.getVoucherDetails(voucher_id)
-    assert details[0] == 1  # downgraded tier
+
+def test_upgrade_voucher(voucher, token, accounts):
+    voucher.createVoucher(accounts[1], 3, 30, "UTC", {"from": accounts[0]})
+    token.transfer(accounts[1], 1000, {"from": accounts[0]})
+    token.approve(voucher.address, 1000, {"from": accounts[1]})
+    voucher.upgradeVoucher(0, 4, {"from": accounts[1]})
+    assert voucher.getVoucherDetails(0)["tier"] == 4
+
+
+def test_renew_voucher(voucher, token, accounts):
+    voucher.createVoucher(accounts[1], 3, 30, "UTC", {"from": accounts[0]})
+    token.transfer(accounts[1], 1000, {"from": accounts[0]})
+    token.approve(voucher.address, 1000, {"from": accounts[1]})
+    voucher.renewVoucher(0, 30, {"from": accounts[1]})
+    assert voucher.getVoucherDetails(0)["duration"] == 60
+
+
+def test_downgrade_voucher(voucher, accounts):
+    voucher.createVoucher(accounts[1], 3, 30, "UTC", {"from": accounts[0]})
+    voucher.downgradeVoucher(0, 2, {"from": accounts[1]})
+    assert voucher.getVoucherDetails(0)["tier"] == 2

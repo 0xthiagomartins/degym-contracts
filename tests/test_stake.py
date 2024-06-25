@@ -1,28 +1,36 @@
-from brownie import Stake, DeGymToken, accounts
+import pytest
+from brownie import DeGymToken, Stake, accounts
 
+@pytest.fixture
+def token():
+    return DeGymToken.deploy(1000000, {"from": accounts[0]})
 
-def test_stake():
-    account = accounts[0]
-    dGymToken = DeGymToken.deploy(1000000 * 10**18, {"from": account})
-    usdtToken = DeGymToken.deploy(
-        1000000 * 10**18, {"from": account}
-    )  # Using DeGymToken as USDT for simplicity
-    stake_contract = Stake.deploy(
-        dGymToken.address, usdtToken.address, {"from": account}
-    )
+@pytest.fixture
+def usdt():
+    return DeGymToken.deploy(1000000, {"from": accounts[0]})
 
-    # Stake tokens
-    dGymToken.approve(stake_contract.address, 1000 * 10**18, {"from": account})
-    stake_contract.stake(1000 * 10**18, True, {"from": account})
-    assert stake_contract.totalStaked() == 1000 * 10**18
+@pytest.fixture
+def stake(token, usdt):
+    return Stake.deploy(token.address, usdt.address, {"from": accounts[0]})
 
-    # Unstake tokens
-    stake_contract.unstake(500 * 10**18, {"from": account})
-    assert stake_contract.totalStaked() == 500 * 10**18
+def test_stake(stake, token, accounts):
+    token.transfer(accounts[1], 2000, {"from": accounts[0]})
+    token.approve(stake.address, 2000, {"from": accounts[1]})
+    stake.stake(2000, True, {"from": accounts[1]})
+    assert stake.totalStaked() == 2000
 
-    # Distribute rewards
-    stake_contract.distributeRewards(account, 100 * 10**18, True, {"from": account})
-    assert dGymToken.balanceOf(account) == 100 * 10**18
+def test_unstake(stake, token, accounts):
+    token.transfer(accounts[1], 2000, {"from": accounts[0]})
+    token.approve(stake.address, 2000, {"from": accounts[1]})
+    stake.stake(2000, True, {"from": accounts[1]})
+    stake.unstake(1000, {"from": accounts[1]})
+    assert stake.totalStaked() == 1000
 
-    stake_contract.distributeRewards(account, 100 * 10**18, False, {"from": account})
-    assert usdtToken.balanceOf(account) == 100 * 10**18
+def test_distribute_rewards(stake, token, usdt, accounts):
+    token.transfer(accounts[1], 2000, {"from": accounts[0]})
+    token.approve(stake.address, 2000, {"from": accounts[1]})
+    stake.stake(2000, True, {"from": accounts[1]})
+    stake.distributeRewards(accounts[1], 100, True, {"from": accounts[0]})
+    assert token.balanceOf(accounts[1]) == 100
+    stake.distributeRewards(accounts[1], 50, False, {"from": accounts[0]})
+    assert usdt.balanceOf(accounts[1]) == 50
