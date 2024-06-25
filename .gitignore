@@ -2,3 +2,4 @@ __pycache__
 .build
 drafts
 TODO.md
+.env
