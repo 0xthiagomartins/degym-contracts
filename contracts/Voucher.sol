@@ -114,7 +114,7 @@ contract Voucher is ERC721URIStorage, Ownable {
 
     function getVoucherDetails(
         uint256 voucherId
-    ) public view returns (Voucher memory) {
+    ) public view returns (VoucherDetails memory) {
         return vouchers[voucherId];
     }
 
