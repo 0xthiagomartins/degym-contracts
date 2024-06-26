@@ -1,7 +1,7 @@
 dependencies:
-  - name: openzeppelin
-    github: OpenZeppelin/openzeppelin-contracts
-    version: 4.3.2
+  - OpenZeppelin/openzeppelin-contracts@4.4.0
+  - OpenZeppelin/openzeppelin-contracts-upgradeable@4.4.0
+  - smartcontractkit/chainlink@0.2.2
 
 compiler:
   solc:

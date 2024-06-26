@@ -1,4 +1,4 @@
-from ape import accounts, project
+from ape import project
 
 
 def test_create_voucher(voucher_contract, provider, consumer):
