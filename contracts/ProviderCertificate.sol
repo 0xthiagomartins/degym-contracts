@@ -23,13 +23,13 @@ contract ProviderCertificate is ERC721URIStorage, Ownable {
         address stakeContractAddress,
         uint256 minStake
     ) ERC721("Provider Certificate", "PC") {
-        stakingContract = IStakeContract(stakeContractAddress);
+        stakeContract = IStakeContract(stakeContractAddress);
         minimumStake = minStake;
     }
 
     function issueCertificate(address to, uint256 tier) public onlyOwner {
         require(
-            stakingContract.getStake(to) >= minimumStake,
+            stakeContract.getStake(to) >= minimumStake,
             "Insufficient stake to issue certificate"
         );
         uint256 tokenId = nextTokenId;
@@ -43,7 +43,7 @@ contract ProviderCertificate is ERC721URIStorage, Ownable {
         require(_exists(tokenId), "Certificate does not exist");
         return
             certificates[tokenId].isValid &&
-            stakingContract.getStake(ownerOf(tokenId)) >= minimumStake;
+            stakeContract.getStake(ownerOf(tokenId)) >= minimumStake;
     }
 
     function revokeCertificate(uint256 tokenId) public onlyOwner {
