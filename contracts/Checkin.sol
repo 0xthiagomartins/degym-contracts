@@ -4,13 +4,12 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 interface IProviderCertificate {
-    function checkCertificate(
-        uint256 certificateId
-    ) external view returns (uint256, uint256, bool);
+    function validateCertificate(uint256 tokenId) external view returns (bool);
+    function getTier(uint256 tokenId) external view returns (uint256);
 }
 
 interface IVoucher {
-    function checkin(uint256 tokenId, uint256 tier) external;
+    function checkin(uint256 voucherId, uint256 tier) external;
 }
 
 contract Checkin is Ownable {
@@ -29,10 +28,11 @@ contract Checkin is Ownable {
     }
 
     function checkin(uint256 voucherId, uint256 certificateId) public {
-        (uint256 tier, , bool isActive) = providerCertificate.checkCertificate(
-            certificateId
+        require(
+            providerCertificate.validateCertificate(certificateId),
+            "Provider certificate is not active"
         );
-        require(isActive, "Provider certificate is not active");
+        uint256 tier = providerCertificate.getTier(certificateId);
 
         voucher.checkin(voucherId, tier);
         emit CheckinSuccessful(voucherId, certificateId, tier);

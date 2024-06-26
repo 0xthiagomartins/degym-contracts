@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-interface IstakeContract {
+interface IStakeContract {
     function getStake(address user) external view returns (uint256);
 }
 
@@ -15,7 +15,7 @@ contract ProviderCertificate is ERC721URIStorage, Ownable {
     }
 
     mapping(uint256 => Certificate) public certificates;
-    IstakeContract public stakeContractAddress;
+    IStakeContract public stakeContract;
     uint256 public minimumStake;
     uint256 public nextTokenId;
 
@@ -34,7 +34,7 @@ contract ProviderCertificate is ERC721URIStorage, Ownable {
         );
         uint256 tokenId = nextTokenId;
         _mint(to, tokenId);
-        _setTokenURI(tokenId, "ipfs://Qm..."); // TODO: Example IPFS URI
+        _setTokenURI(tokenId, "ipfs://Qm..."); // Example IPFS URI
         certificates[tokenId] = Certificate(tier, true);
         nextTokenId++;
     }
@@ -44,6 +44,11 @@ contract ProviderCertificate is ERC721URIStorage, Ownable {
         return
             certificates[tokenId].isValid &&
             stakeContract.getStake(ownerOf(tokenId)) >= minimumStake;
+    }
+
+    function getTier(uint256 tokenId) public view returns (uint256) {
+        require(_exists(tokenId), "Certificate does not exist");
+        return certificates[tokenId].tier;
     }
 
     function revokeCertificate(uint256 tokenId) public onlyOwner {

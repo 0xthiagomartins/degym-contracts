@@ -16,7 +16,7 @@ contract Voucher is ERC721URIStorage, Ownable {
 
     IERC20 public fiatToken;
     uint256 public nextVoucherId;
-    uint256 public basePrice = 15 * 10 ** 18;
+    uint256 public basePrice = 15 * 10 ** 18; // Assuming base price in fiat token decimals
 
     mapping(uint256 => Voucher) public vouchers;
 
@@ -24,7 +24,7 @@ contract Voucher is ERC721URIStorage, Ownable {
     event VoucherRenewed(uint256 voucherId, uint256 additionalDays);
     event VoucherDowngraded(uint256 voucherId, uint256 newTier);
 
-    constructor(address fiatTokenAddress) ERC721("Voucher", "V") {
+    constructor(address fiatTokenAddress) ERC721("Voucher", "VCH") {
         fiatToken = IERC20(fiatTokenAddress);
     }
 
@@ -115,5 +115,14 @@ contract Voucher is ERC721URIStorage, Ownable {
         uint256 voucherId
     ) public view returns (Voucher memory) {
         return vouchers[voucherId];
+    }
+
+    function checkin(uint256 voucherId, uint256 tier) external {
+        Voucher storage voucher = vouchers[voucherId];
+        require(
+            voucher.remainingDCP >= (2 ** tier),
+            "Insufficient DCP for check-in"
+        );
+        voucher.remainingDCP -= (2 ** tier);
     }
 }
