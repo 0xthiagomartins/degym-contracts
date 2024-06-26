@@ -9,7 +9,16 @@ interface IProviderCertificate {
 }
 
 interface IVoucher {
-    function checkin(uint256 voucherId, uint256 tier) external;
+    function checkin(
+        uint256 voucherId,
+        uint256 gymId,
+        uint256 dcpUsed
+    ) external;
+    function canAccessGym(
+        uint256 voucherId,
+        uint256 gymId
+    ) external view returns (bool);
+    function resetDailyLedger(uint256 voucherId) external;
 }
 
 contract Checkin is Ownable {
@@ -19,7 +28,8 @@ contract Checkin is Ownable {
     event CheckinSuccessful(
         uint256 voucherId,
         uint256 certificateId,
-        uint256 tier
+        uint256 gymId,
+        uint256 dcpUsed
     );
 
     constructor(address providerCertificateAddress, address voucherAddress) {
@@ -27,14 +37,22 @@ contract Checkin is Ownable {
         voucher = IVoucher(voucherAddress);
     }
 
-    function checkin(uint256 voucherId, uint256 certificateId) public {
+    function checkin(
+        uint256 voucherId,
+        uint256 certificateId,
+        uint256 gymId
+    ) public {
         require(
             providerCertificate.validateCertificate(certificateId),
             "Provider certificate is not active"
         );
         uint256 tier = providerCertificate.getTier(certificateId);
-
-        voucher.checkin(voucherId, tier);
-        emit CheckinSuccessful(voucherId, certificateId, tier);
+        require(
+            voucher.canAccessGym(voucherId, gymId),
+            "Access limit reached for today"
+        );
+        uint256 dcpUsed = 2 ** tier;
+        voucher.checkin(voucherId, gymId, dcpUsed);
+        emit CheckinSuccessful(voucherId, certificateId, gymId, dcpUsed);
     }
 }
