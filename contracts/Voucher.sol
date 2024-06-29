@@ -118,7 +118,7 @@ contract Voucher is ERC721URIStorage, Ownable {
         return vouchers[voucherId];
     }
 
-    function resetDailyLedger(uint256 voucherId) public {
+    function resetDailyLedger(uint256 voucherId) public onlyOwner {
         require(
             block.timestamp >= vouchers[voucherId].lastReset + 1 days,
             "Cannot reset yet"
@@ -131,6 +131,11 @@ contract Voucher is ERC721URIStorage, Ownable {
         voucher.remainingDCP = 2 ** voucher.tier;
         voucher.lastReset = block.timestamp;
     }
+    function resetVoucher(uint256 voucherId) external onlyOwner {
+        resetDCP(voucherId);
+        resetDailyLedger(voucherId);
+    }
+
     function canAccessGym(
         uint256 voucherId,
         uint256 gymId
